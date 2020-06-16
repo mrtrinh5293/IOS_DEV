@@ -13,16 +13,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     // UICollectionView asking the ViewController for how many items it want to display
     
     
+    @IBAction func newGameBut(_ sender: Any) {
+    }
     @IBOutlet weak var collectionView: UICollectionView!
     
+    
+    @IBOutlet weak var startGameTimer: UILabel!
     
     @IBOutlet weak var timerLabel: UILabel!
     
     let model = CardModel() //declare a property
     var cardsArray = [Card]() // declare empty card array
     
+    var countdownTimer:Timer?
+    var countdownTime:Int = 5
+    
     var timer:Timer?
-    var milliseconds:Int = 30*1000
+    var milliseconds:Int = 10*1000
     
     var firstFlippedCardIndex:IndexPath?
     
@@ -44,11 +51,10 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         collectionView.dataSource = self
         collectionView.delegate = self
         
+        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(Countdown), userInfo: nil, repeats: true)
         //Initializrr the timer
-        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerFired), userInfo: nil, repeats: true)
         
-        RunLoop.main.add(timer!, forMode: .common)
-        
+//        RunLoop.main.add(countdownTimer!, forMode: .common)
     }
     
     
@@ -84,12 +90,32 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         
     }
     
+    @objc func Countdown() { // this is the function called by the timer every second, which causes your "countdownTime" to go down by 1. When it reaches 0, it starts the game.
+        countdownTime -= 1
+        
+        let cDseconds:Double = Double(countdownTime)
+        if countdownTime > 0{
+            
+            startGameTimer.text = String(format: "Get Ready In: %.0f", cDseconds)
+        }
+        
+        if countdownTime == 0 {
+            // call the function where game action begins here, or call the function that makes the game begin here.
+            timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerFired), userInfo: nil, repeats: true)
+            
+            
+            RunLoop.main.add(timer!, forMode: .common)
+            startGameTimer.text = String(format: "Start!!")
+            
+        }
+    }
+    
     @IBAction func onPause(_ sender: UIButton) {
         self.timer?.invalidate()
         let alert = UIAlertController(title: "Succesful", message: "Successfully added!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "End Game", style: .default, handler: { _ in
             let uivc = self.storyboard!.instantiateViewController(withIdentifier: "NewGameScreen")
-            self.navigationController?.pushViewController(uivc, animated: true)
+            self.navigationController!.pushViewController(uivc, animated: true)
         }))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
             self.timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.timerFired), userInfo: nil, repeats: true)
@@ -254,14 +280,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         cardsArray = [Card]()
         cardsArray = model.getCards()
         milliseconds = 30000
+        countdownTime = 10
         soundPlayer.playSound(effect: .shuffle)
         timerLabel.textColor = UIColor.black
         collectionView.reloadData()
-        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerFired), userInfo: nil, repeats: true)
+        if countdownTime == 0 {
+            // call the function where game action begins here, or call the function that makes the game begin here.
+            timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerFired), userInfo: nil, repeats: true)
+            
+            
+            RunLoop.main.add(timer!, forMode: .common)
+            startGameTimer.text = String(format: "Start!!")
+            
+        }
+//        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerFired), userInfo: nil, repeats: true)
+        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(Countdown), userInfo: nil, repeats: true)
+
         RunLoop.main.add(timer!, forMode: .common)
     }
-    
-    
-    
 }
 
