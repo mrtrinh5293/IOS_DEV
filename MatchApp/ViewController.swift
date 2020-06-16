@@ -114,8 +114,9 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         self.timer?.invalidate()
         let alert = UIAlertController(title: "Succesful", message: "Successfully added!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "End Game", style: .default, handler: { _ in
-            let uivc = self.storyboard!.instantiateViewController(withIdentifier: "NewGameScreen")
-            self.navigationController!.pushViewController(uivc, animated: true)
+//            let uivc = self.storyboard!.instantiateViewController(withIdentifier: "NewGameScreen")
+//            self.navigationController!.pushViewController(uivc, animated: true)
+            self.dismiss(animated: true, completion: nil)
         }))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
             self.timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.timerFired), userInfo: nil, repeats: true)
